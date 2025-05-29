@@ -20,3 +20,8 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+#cach
+__pycache__
+.~lock.tariffs.xlsx#
+#Excel
+tariffs.xlsx
