@@ -25,3 +25,6 @@ __pycache__
 .~lock.tariffs.xlsx#
 #Excel
 tariffs.xlsx
+#poetry
+poetry.lock
+pyproject.toml
