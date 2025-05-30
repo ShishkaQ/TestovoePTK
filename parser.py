@@ -12,16 +12,16 @@ class TariffParser:
         self.session = requests.Session()
         self.soup = None
         self.tv_channel_map = {}
-
         
+
     def fetch_page(self):
         """Загружает и парсит HTML-страницу"""
         response = self.session.get(self.BASE_URL)
         response.raise_for_status()
         self.soup = BeautifulSoup(response.text, "html.parser")
         return self.soup
-    
-        
+
+
     def parse_internet_tariffs(self, section_id, is_private=False):
         """Парсит интернет-тарифы для указанного раздела"""
         section = self.soup.find("div", id=section_id)
@@ -42,6 +42,9 @@ class TariffParser:
                 continue
                 
             name = cols[0].get_text(strip=True)
+            
+            name = name.replace("**", "")
+            
             fee_text = cols[1].get_text(strip=True)
             fee = int(re.sub(r"\D", "", fee_text)) if fee_text else 0
             
@@ -52,9 +55,6 @@ class TariffParser:
                 speed = int(speed_match.group(1)) // 1000
             else:
                 speed = None
-                
-            if is_private:
-                name += "_ч"
                 
             tariffs.append({
                 "Название тарифа": name,
@@ -98,6 +98,9 @@ class TariffParser:
                 
             # Извлечение названия тарифа и количества каналов
             name_cell = cols[0].get_text(strip=True)
+            # Удаляем ** из названия тарифа
+            name_cell = name_cell.replace("**", "")
+            
             channels_match = re.search(r"\((\d+) канал", name_cell)
             channels = int(channels_match.group(1)) if channels_match else None
             base_name = re.sub(r"\(\d+ канал.*\)", "", name_cell).strip()
@@ -108,12 +111,10 @@ class TariffParser:
             
             # Обработка ценовых ячеек
             for idx, cell in enumerate(cols[1:]):
-
                 if idx >= len(headers) or not headers[idx]:
                     continue
                     
                 fee_text = cell.get_text(strip=True)
-
                 if not fee_text:
                     continue
                     
@@ -165,4 +166,4 @@ class TariffParser:
         
         df.to_excel(filename, index=False)
         return filename
-
+    
